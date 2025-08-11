@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import routes from "./settings/routes";
 import Sidebar from "./components/Sidebar";
 import Login from "./pages/Login";
+import Rooms from "./pages/Rooms";
 
 function AppWrapper() {
   const location = useLocation();
@@ -17,6 +18,7 @@ function AppWrapper() {
       <div style={{ flex: 1, padding: "20px" }}>
         <Routes>
           <Route path="/" element={<Login setUser={setUser} />} />
+          <Route path="/rooms" element={<Rooms user={user} />} />
           {routes.map((route, index) => (
             <Route key={index} path={route.path} element={route.element} />
           ))}
