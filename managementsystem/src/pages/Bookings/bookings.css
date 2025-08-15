@@ -1,0 +1,8 @@
+.bookings-page { max-width:1000px; margin:0 auto; }
+.booking-form { display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+.booking-table { width:100%; border-collapse:collapse; }
+.booking-table th, .booking-table td { padding:8px 10px; border-bottom:1px solid #eef2f7; }
+.btn-primary{ background:#1f2937; color:white; padding:8px 10px; border-radius:6px; border:none; }
+.btn-sm { padding:6px 8px; border-radius:6px; background:#f3f4f6; border:none; cursor:pointer; }
+.btn-sm.danger { background:#fee2e2; color:#b91c1c; }
+.table-wrap { overflow:auto; }

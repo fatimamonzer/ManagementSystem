@@ -1,31 +1,32 @@
 .sidebar {
   width: 220px;
-  background: #1f2937; /* Dark Gray */
+  background-color: #334155;
   color: white;
-  padding: 20px;
   height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .sidebar h2 {
-  font-size: 18px;
   margin-bottom: 20px;
 }
 
 .sidebar ul {
   list-style: none;
-  padding: 0;
+  padding-left: 0;
 }
 
 .sidebar li {
-  margin: 12px 0;
+  margin-bottom: 12px;
 }
 
 .sidebar a {
-  color: #d1d5db;
+  color: white;
   text-decoration: none;
-  transition: color 0.2s;
+  font-weight: 600;
 }
 
-.sidebar a:hover {
-  color: white;
+.sidebar a.active {
+  color: #3b82f6;
+  text-decoration: underline;
 }

@@ -3,32 +3,37 @@ import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../services/authServices";
 
 export default function Login({ setUser }) {
-  const [username, setUsername] = useState("");
+  const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const user = loginUser(username, password);
-    if (user) {
-      setUser(user);
+    setError("");
+    setLoading(true);
+    try {
+      const user = await loginUser(usernameOrEmail, password);
+      setUser(user); // lift to App state if you keep it there
       navigate("/dashboard");
-    } else {
+    } catch (err) {
       setError("Invalid credentials");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div style={{ display: "flex", height: "100vh", justifyContent: "center", alignItems: "center" }}>
-      <form onSubmit={handleLogin} style={{ background: "#f9fafb", padding: "30px", borderRadius: "8px" }}>
+      <form onSubmit={handleLogin} style={{ background: "#f9fafb", padding: "30px", borderRadius: "8px", minWidth: 320 }}>
         <h2>Login</h2>
         {error && <p style={{ color: "red" }}>{error}</p>}
         <input
           type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Username or Email"
+          value={usernameOrEmail}
+          onChange={(e) => setUsernameOrEmail(e.target.value)}
           style={{ display: "block", margin: "10px 0", padding: "8px", width: "100%" }}
         />
         <input
@@ -38,8 +43,8 @@ export default function Login({ setUser }) {
           onChange={(e) => setPassword(e.target.value)}
           style={{ display: "block", margin: "10px 0", padding: "8px", width: "100%" }}
         />
-        <button type="submit" style={{ padding: "8px 12px", background: "#1f2937", color: "white", border: "none" }}>
-          Login
+        <button type="submit" disabled={loading} style={{ padding: "8px 12px", background: "#1f2937", color: "white", border: "none", width: "100%" }}>
+          {loading ? "Logging in..." : "Login"}
         </button>
       </form>
     </div>

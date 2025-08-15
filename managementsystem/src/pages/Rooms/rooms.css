@@ -1,0 +1,19 @@
+.rooms-page { max-width: 1100px; margin: 0 auto; }
+.rooms-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+.rooms-header .muted { color: #64748b; font-size: 0.95rem; }
+.rooms-form-wrap { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+.rooms-list-wrap { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; }
+
+.room-table { width: 100%; border-collapse: collapse; }
+.room-table th, .room-table td { text-align: left; padding: 10px; border-bottom: 1px solid #e2e8f0; }
+.room-table th { font-weight: 600; color: #334155; background: #f8fafc; }
+
+.btn-sm { font-size: 0.85rem; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; cursor: pointer; }
+.btn-sm:hover { background: #f1f5f9; }
+.btn-sm.danger { border-color: #fecaca; color: #b91c1c; }
+.btn-sm.danger:hover { background: #fee2e2; }
+
+.room-form input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 10px; }
+.room-form .inline { font-size: 0.95rem; color: #334155; }
+.btn-primary { padding: 8px 12px; background: #1f2937; color: white; border: none; border-radius: 8px; cursor: pointer; }
+.btn-ghost { padding: 8px 12px; background: transparent; color: #1f2937; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer; }

@@ -1,0 +1,4 @@
+.mom-page { max-width:900px; margin:0 auto; }
+.mom-create select, .mom-create input, .mom-create textarea { display:block; width:100%; margin:8px 0; padding:8px; border:1px solid #e5e7eb; border-radius:6px; }
+.action-row { display:flex; gap:8px; margin-bottom:6px; align-items:center; }
+.action-row input { flex:1; }

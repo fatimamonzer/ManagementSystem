@@ -1,116 +1,107 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import RoomForm from "../../components/RoomForm";
+import RoomList from "../../components/RoomList";
+import "./rooms.css";
+import { fetchRooms, createRoom, updateRoom, deleteRoom } from "../../services/roomServices";
 
 export default function Rooms({ user }) {
-  const [rooms, setRooms] = useState([
-    { id: 1, name: "Room A", capacity: 10, location: "Floor 1", features: "Projector" },
-    { id: 2, name: "Room B", capacity: 20, location: "Floor 2", features: "Video Conferencing" }
-  ]);
+  const isAdmin = useMemo(() => user?.role?.toLowerCase() === "admin", [user]);
+  const [rooms, setRooms] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editingRoom, setEditingRoom] = useState(null);
+  const [error, setError] = useState("");
 
-  const [formData, setFormData] = useState({
-    id: null,
-    name: "",
-    capacity: "",
-    location: "",
-    features: ""
-  });
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (formData.id) {
-      // Edit room
-      setRooms(rooms.map((room) => (room.id === formData.id ? formData : room)));
-    } else {
-      // Add new room
-      setRooms([...rooms, { ...formData, id: Date.now() }]);
+  const load = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      const data = await fetchRooms();
+      setRooms(data);
+    } catch (e) {
+      setError("Failed to load rooms.");
+    } finally {
+      setLoading(false);
     }
-    setFormData({ id: null, name: "", capacity: "", location: "", features: "" });
   };
 
-  const handleEdit = (room) => {
-    setFormData(room);
+  useEffect(() => { load(); }, []);
+
+  const handleSave = async (room) => {
+    try {
+      if (!isAdmin) return alert("Only admins can perform this action.");
+
+      const payload = {
+        name: room.name,
+        capacity: Number(room.capacity),
+        location: room.location,
+        features: room.features || "",
+        isActive: room.isActive ?? true,
+        isAvailable: room.isAvailable ?? true
+      };
+
+      if (room.id) {
+        await updateRoom(room.id, payload);
+      } else {
+        await createRoom(payload);
+      }
+
+      await load();
+      setEditingRoom(null);
+    } catch (e) {
+      alert("Save failed. Please try again.");
+    }
   };
 
-  const handleDelete = (id) => {
-    setRooms(rooms.filter((room) => room.id !== id));
+  const handleEdit = (room) => setEditingRoom(room);
+
+  const handleDelete = async (id) => {
+    if (!isAdmin) return alert("Only admins can delete rooms.");
+    if (!window.confirm("Delete this room?")) return;
+    try {
+      await deleteRoom(id);
+      setRooms((prev) => prev.filter((r) => r.id !== id));
+      if (editingRoom?.id === id) setEditingRoom(null);
+    } catch (e) {
+      alert("Delete failed. Please try again.");
+    }
   };
+
+  const cancelEdit = () => setEditingRoom(null);
 
   return (
-    <div>
-      <h1>Rooms</h1>
+    <div className="rooms-page">
+      <div className="rooms-header">
+        <h1>Rooms</h1>
+        <p className="muted">
+          Manage meeting rooms (Admins can create, edit, and delete).
+        </p>
+      </div>
 
-      {user?.role === "Admin" && (
-        <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
-          <input
-            type="text"
-            name="name"
-            placeholder="Room Name"
-            value={formData.name}
-            onChange={handleChange}
-            required
+      {isAdmin && (
+        <div className="rooms-form-wrap">
+          <RoomForm
+            onSave={handleSave}
+            editingRoom={editingRoom}
+            onCancel={cancelEdit}
+            isAdmin={isAdmin}
           />
-          <input
-            type="number"
-            name="capacity"
-            placeholder="Capacity"
-            value={formData.capacity}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="text"
-            name="location"
-            placeholder="Location"
-            value={formData.location}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="text"
-            name="features"
-            placeholder="Features"
-            value={formData.features}
-            onChange={handleChange}
-          />
-          <button type="submit">
-            {formData.id ? "Update Room" : "Add Room"}
-          </button>
-        </form>
+        </div>
       )}
 
-      <table border="1" cellPadding="8" style={{ borderCollapse: "collapse", width: "100%" }}>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Capacity</th>
-            <th>Location</th>
-            <th>Features</th>
-            {user?.role === "Admin" && <th>Actions</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {rooms.map((room) => (
-            <tr key={room.id}>
-              <td>{room.name}</td>
-              <td>{room.capacity}</td>
-              <td>{room.location}</td>
-              <td>{room.features}</td>
-              {user?.role === "Admin" && (
-                <td>
-                  <button onClick={() => handleEdit(room)}>Edit</button>
-                  <button onClick={() => handleDelete(room.id)}>Delete</button>
-                </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="rooms-list-wrap">
+        {loading ? (
+          <p>Loading…</p>
+        ) : error ? (
+          <p style={{ color: "red" }}>{error}</p>
+        ) : (
+          <RoomList
+            rooms={rooms}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            isAdmin={isAdmin}
+          />
+        )}
+      </div>
     </div>
   );
 }

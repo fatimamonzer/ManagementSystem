@@ -1,0 +1,12 @@
+.calendar-page { max-width:1100px; margin:0 auto; }
+.calendar-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.month-grid { display:block; }
+.week-days { display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:4px; }
+.week-row { display:grid; grid-template-columns:repeat(7,1fr); }
+.cell { border:1px solid #eef2f7; padding:6px; min-height:90px; background:#fff; }
+.cell.head { background:#f8fafc; font-weight:600; text-align:center; }
+.day-num { font-size:12px; font-weight:600; }
+.day-bookings { margin-top:6px; display:flex; flex-direction:column; gap:4px; }
+.booking-pill { background:#eef2ff; padding:4px 6px; border-radius:6px; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.muted { color:#9ca3af; background:#fafafa; }
+.list-view ul { list-style:none; padding-left:0; }

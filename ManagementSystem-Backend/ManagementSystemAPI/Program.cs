@@ -1,13 +1,23 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using ManagementSystemAPI.Data;
+using ManagementSystemAPI.Services.Auth;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// DbContext (MySQL)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-        new MySqlServerVersion(new Version(8, 0, 36))));
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        new MySqlServerVersion(new Version(8, 0, 36))
+    ));
 
-// Add CORS policy BEFORE Build
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
@@ -16,12 +26,49 @@ builder.Services.AddCors(options =>
                         .AllowAnyMethod());
 });
 
-// Add OpenAPI
+// Controllers + Swagger/OpenAPI
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Case-insensitive enum deserialization and camelCase enum serialization
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, true));
+    });
 builder.Services.AddOpenApi();
+
+// JWT Authentication
+var jwtKey = builder.Configuration["Jwt:Key"] 
+             ?? throw new InvalidOperationException("JWT key is missing in configuration.");
+var keyBytes = Encoding.UTF8.GetBytes(jwtKey);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer           = false,
+        ValidateAudience         = false,
+        ValidateLifetime         = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey         = new SymmetricSecurityKey(keyBytes),
+        ClockSkew                = TimeSpan.FromMinutes(2)
+    };
+});
+
+builder.Services.AddAuthorization();
+
+// Register services
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+// **Register PasswordHasher<User> so it can be injected**
+builder.Services.AddScoped<Microsoft.AspNetCore.Identity.PasswordHasher<ManagementSystemAPI.Models.User>>();
 
 var app = builder.Build();
 
-// Ensure DB is created (creates database & tables if not existing)
+// Ensure DB exists
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -30,7 +77,6 @@ using (var scope = app.Services.CreateScope())
 
 app.UseCors("AllowReactApp");
 
-// Configure pipeline
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -38,42 +84,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild",
-        "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+app.UseAuthentication();
+app.UseAuthorization();
 
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
-// New endpoint to get all entries from DB
-app.MapGet("/entries", async (ApplicationDbContext dbContext) =>
-{
-    var entries = await dbContext.Entries.ToListAsync();
-    return Results.Ok(entries);
-});
+app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
-
-public class Entry
-{
-    public int Id { get; set; }
-    public string Name { get; set; } = null!;
-}
