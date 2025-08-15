@@ -1,11 +1,10 @@
 import axios from "axios";
 
 const http = axios.create({
-  baseURL: "http://localhost:5145/api", // adjust port to your API
+  baseURL: "http://localhost:5145/api",
   withCredentials: false
 });
 
-// attach token if present
 http.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
