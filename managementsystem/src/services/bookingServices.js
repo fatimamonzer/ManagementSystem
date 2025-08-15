@@ -30,5 +30,5 @@ export async function isRoomAvailable(roomId, startTime, endTime) {
   const { data } = await http.get(`/bookings/room/${roomId}/available`, {
     params: { start: startTime, end: endTime }
   });
-  return data; // boolean
+  return data;
 }
