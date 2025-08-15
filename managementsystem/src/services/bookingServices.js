@@ -21,13 +21,11 @@ export async function updateBooking(id, payload) {
   return true;
 }
 
-/** Delete a booking */
 export async function deleteBooking(id) {
   await http.delete(`/bookings/${id}`);
   return true;
 }
 
-/** Check if room is available */
 export async function isRoomAvailable(roomId, startTime, endTime) {
   const { data } = await http.get(`/bookings/room/${roomId}/available`, {
     params: { start: startTime, end: endTime }
