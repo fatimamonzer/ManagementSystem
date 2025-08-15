@@ -1,4 +1,3 @@
-// src/pages/Profile/index.js
 import React, { useEffect, useState } from "react";
 import "./Profile.css";
 import {

@@ -1,6 +1,5 @@
 import http from "./http";
 
-/** Fetch all bookings (Admin only) */
 export async function fetchBookings() {
   const { data } = await http.get("/bookings");
   return data; // BookingDto[]
