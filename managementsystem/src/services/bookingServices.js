@@ -11,16 +11,12 @@ export async function fetchBooking(id) {
   return data;
 }
 
-/** Create a new booking */
 export async function createBooking(payload) {
-  // payload: { roomId, startTime: ISOString, endTime: ISOString }
   const { data } = await http.post("/bookings", payload);
   return data; // BookingDto
 }
 
-/** Update a booking */
 export async function updateBooking(id, payload) {
-  // payload: { startTime: ISOString, endTime: ISOString }
   await http.put(`/bookings/${id}`, payload);
   return true;
 }
