@@ -7,7 +7,7 @@ import {
   getAllUsers,
   deleteUser,
   registerUser,
-  resetAllPasswords // consider creating single-user reset if backend supports it
+  resetAllPasswords 
 } from "../../services/authServices";
 
 export default function Profile({ user, setUser }) {
@@ -30,7 +30,6 @@ export default function Profile({ user, setUser }) {
           avatar: profileData.avatar || ""
         });
 
-        // Admin: fetch all users
         if (profileData.role === "Admin") {
           const allUsers = await getAllUsers();
           const mappedUsers = allUsers.map(u => ({
